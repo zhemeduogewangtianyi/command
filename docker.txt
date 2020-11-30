@@ -1,0 +1,14 @@
+下载镜像列表：
+docker images
+
+运行的镜像列表：
+docker ps
+
+进入进程机器：
+docker exec -it mysql-test bash
+
+
+
+
+拉起mysql：
+docker run -itd --name-test -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 mysql

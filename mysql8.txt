@@ -1,0 +1,16 @@
+mysql - 8
+
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY '123456';
+
+CREATE USER 'dddxhh'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
+
+GRANT ALL PRIVILEGES ON *.* TO 'dddxhh'@'%';
+
+
+
+GRANT ALL PRIVILEGES ON *.* TO 'dddxhh'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
+
+
+FLUSH PRIVILEGES
+
