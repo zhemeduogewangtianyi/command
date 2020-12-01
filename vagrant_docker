@@ -1,0 +1,98 @@
+##############vagrant安装centos#############################################
+
+1、准备好vagrant、viturabox
+
+#vagrant下载
+
+https://releases.hashicorp.com/vagrant/2.2.9/vagrant_2.2.9_x86_64.msi
+
+#vitualbox下载
+
+https://www.virtualbox.org/
+
+2、新建centos虚拟机目录
+
+3、在该目录下打开cmd命令行
+
+4、命令行输入
+
+##vagrant box add {title} {url}
+
+vagrant box add Centos7.1 https://github.com/tommy-muehle/puppet-vagrant-boxes/releases/download/1.1.0/centos-7.0-x86_64.box
+
+5、初始化vagrant
+
+#vagrant init {title}
+
+vagrant init Centos7.1
+
+6、启动centos
+
+vagrant up
+
+7、连接机器
+
+vagrant ssh
+
+8、进入root
+
+su root#密码:vagrant
+
+##############Docker安装#############################################
+
+# 1、查看安装过的docker：
+
+yum list installed | grep docker
+
+# 2、卸载docker：
+
+sudo yum remove -y docker-ce.x86_64 docker-client.x86_64 docker-common.x86_64
+
+# 3、删除容器镜像：
+
+sudo rm -rf /var/lib/docker
+
+# 4、安装依赖
+
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+
+# 5、设置阿里云镜像源
+
+sudo yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+
+# 6、安装 Docker-CE
+
+sudo yum install docker-ce
+
+# 7、启动docker服务 
+
+sudo systemctl start docker
+
+# 8、开机docker服务自启
+
+sudo systemctl enable docker
+
+# 9  配置阿里镜像源
+
+sudo mkdir -p /etc/docker
+
+10.新增daemin.json
+
+vi /etc/docker/daemon.json
+
+{
+
+  "registry-mirrors": ["https://67bbb3vj.mirror.aliyuncs.com"]
+
+}
+
+#11.重启docker服务
+
+sudo systemctl daemon-reload
+
+sudo systemctl restart docker
+
+作者：RookiesITWorker
+链接：https://www.jianshu.com/p/a233c1a7af98
+来源：简书
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
