@@ -4,6 +4,12 @@ docker images
 运行的镜像列表：
 docker ps
 
+删除运行过的镜像：
+docker rm uuid1234
+
+停止镜像
+docker stop uuid1234
+
 进入进程机器：
 docker exec -it mysql-test bash
 
