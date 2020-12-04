@@ -145,6 +145,7 @@ poweroff
 
 vi /etc/ssh/sshd_config
 
+取消注释PermitRootLogin并修改为yes
 
 重启sshd
 
