@@ -1,0 +1,30 @@
+# 拉去centos 7 虚拟机
+vagrant init centos/7
+# 进入虚拟机
+vagrant ssh
+
+# 执行安装docker步骤
+# 安装更新驱动包
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+# 设置repo
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+# 安装docker
+sudo yum install -y docker-ce docker-ce-cli containerd.io
+# 启动docker
+sudo systemctl start docker
+# 当前用户添加到docker用户组
+sudo usermod -aG docker $USER
+# 更新用户组
+newgrp docker
+# 设置docker开机启动
+sudo systemctl enable docker
+# 设置国内镜像可以使用阿里云,我这里使用网易的
+sudo sh -c "echo -e '{\n  \"registry-mirrors\":[\"http://hub-mirror.c.163.com\"]\n}' > /etc/docker/daemon.json"
+# 重新加载配置
+sudo systemctl daemon-reload
+# 重启docker
+sudo systemctl restart docker
+# 检查镜像是否设置成功
+docker info
+# 安装net工具包
+sudo yum install -y net-tools
