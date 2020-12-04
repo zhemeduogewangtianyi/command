@@ -12,3 +12,24 @@ deb https://mirrors.tuna.tsinghua.edu.cn/termux stable main
 
 apt update
 apt upgrade
+
+
+
+增加可用源
+安装wget包
+
+pkg install wget
+添加储存库，在这里直接运行脚本
+
+$PREFIX/bin/wget https://its-pointless.github.io/setup-pointless-repo.sh
+bash setup-pointless-repo.sh
+
+
+
+Termux源推荐
+
+清华源
+http://mirrors.tuna.tsinghua.edu.cn/termux stable main
+
+中科大源
+https://mirrors.ustc.edu.cn/termux
