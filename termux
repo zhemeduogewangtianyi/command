@@ -173,4 +173,16 @@ apk add docker
 
 
 
+ 修改docker为开机(虚拟机)启动，启动docker
+
+rc-update add docker
+
+service docker start
+#后台启动
+setsid containerd
+setsid dockerd
+
+
+测试
+docker info
 
