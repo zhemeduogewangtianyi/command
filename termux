@@ -149,6 +149,8 @@ vi /etc/ssh/sshd_config
 
 重启sshd
 
+service sshd restart
+
 现在外部ssh就可以登录alpine的root账户了
 在Termux中：
 
