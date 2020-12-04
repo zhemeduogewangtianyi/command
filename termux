@@ -33,3 +33,144 @@ http://mirrors.tuna.tsinghua.edu.cn/termux stable main
 
 中科大源
 https://mirrors.ustc.edu.cn/termux
+
+
+
+
+
+
+
+##### install centos #####
+
+//获取 iso 文件
+  
+  wget http://dl-cdn.alpinelinux.org/alpine/v3.10/releases/x86_64/alpine-virt-3.10.1-x86_64.iso
+  
+    virtual-x86_64: alpine-virt-3.10.1-x86_64.iso(v3.10.1, OfficialSite)
+
+//下载俩依赖
+
+  pkg install x11-repo unstable-repo
+  pkg install qemu-utils qemu-system-x86_64
+
+//创建虚拟镜像(硬盘)
+  qemu-img create -f qcow2 virt-alpine.img 5g
+    
+    参数中5g代表创建一个最大容量为5g的镜像，可调节，最少2g以保证docker能正常安装。
+    
+//启动虚拟机
+  qemu-system-x86_64 -hda virt-alpine.img -cdrom alpine-virt-3.10.1-x86_64.iso -boot d -m 512 -nographic
+  
+  -hda : 启动的虚拟硬盘
+  -cdrom : 启动的光盘镜像文档(相当于用光盘安装windows)
+  -boot : 启动槽位，选d (我也不是太清楚)
+  -m : 内存大小，单位mb
+  -nographic : 无图像模式，直接在控制面板输出
+  --vnc :1 : 以vnc为图像模式输出到”显示器”，并占用vnc 1端口
+  
+
+安装Alpine到虚拟硬盘
+
+  root 登录
+  
+配置网络：
+在alpine中，使用vi编辑器：
+
+
+vi /etc/network/interfaces
+添加如下配置
+auto lo
+iface lo inet loopback
+auto eth0
+iface eth0 inet dhcp
+
+保存后重启网络：
+/etc/init.d/networking restart
+
+//设置软件源
+setup-alpine
+
+详细配置：
+
+Select keyboard layout: cn (选择CN键盘布局)
+Select variant (cn)
+Enter system hostname: stageguard (输入hostname名称，随意)
+Which one do you want to initialize? (or '?' or 'done') [eth0]
+Ip address for eth0? (or 'dhcp', 'none', '?') [10.0.2.15] dhcp (选dhcp)
+Changing password for root (修改root用户密码)
+Which timezone are you in? ('?' for list) [UTC] Asia/Shanghai (时区填Asia/Shanghai)
+HTTP/FTP proxy URL? (e.g. 'http://proxy:8080', or 'none') [none] (代理地址，默认none)
+Enter mirror number (1-47) or URL to add (or r/f/e/done) [f]: 21 (选择软件源，21(清华源))
+Which SSH server? ('openssh', 'dropbear' or 'none') [openssh] (SSH服务器，选择openssh(默认))
+Which disk(s) would you like to use? (or '?' for help or 'none') [none]sda (安装在何处，选sda)
+How would you like to use it? ('sys', 'data', 'lvm' or '?' for help) [?] sys (安装方式，选sys)
+WARNING: Erase the above disk(s) and continue? [y/N]: y (清除整个硬盘，y(是))
+
+
+
+若出现网络问题：应该是默认dns服务器异常。
+编辑/etc/resolv.conf
+将10.0.2.3改为8.8.8.8即可
+  vi /etc/resolv.conf
+
+
+
+安装完成，现在关闭虚拟机
+
+poweroff
+
+
+
+
+##### docker #####
+
+启动Alpine并安装docker
+启动qemu虚拟机 在Termux中：
+
+  qemu-system-x86_64 -hda virt-alpine.img -boot c -m 512 -netdev user,id=nde1,hostfwd=tcp::2222-:22 -device e1000,netdev=nde1,id=d-net1 -nographic
+  
+参数解释：
+
+-hda : 启动的虚拟硬盘
+-boot : 启动槽位，选c (我也不是太清楚)
+-m : 内存大小，单位mb
+-netdev : 网络配置，详情请看QEMU_Wiki:Documentation/Networking
+-device : 设备配置(当前指向网络设备)
+-nographic : 无图像模式，直接在控制面板输出
+--vnc :1 : 以vnc为图像模式输出到”显示器”，并占用vnc 1端口
+
+
+· 配置SSHD(可选)
+在Alpine中：
+
+vi /etc/ssh/sshd_config
+
+
+重启sshd
+
+现在外部ssh就可以登录alpine的root账户了
+在Termux中：
+
+  ssh root@localhost -p 2222
+  
+  
+添加community源
+在alpine中，docker在其comminuty源里
+
+  vi /etc/apk/repositories
+  
+  
+修改完成后，执行：
+
+
+apk update
+
+
+安装docker
+
+apk add docker
+
+
+
+
+
