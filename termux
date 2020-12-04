@@ -1,0 +1,14 @@
+修改源
+Termux的源有点慢，所以在这里修改一下源文件，并且增加一个社区源，提供更多的包
+
+vi  $PREFIX/etc/apt/sources.list
+进入源文件，进入编辑模式(i)，全部删除，复制粘贴以下代码
+
+# The main termux repository:
+deb https://mirrors.tuna.tsinghua.edu.cn/termux stable main
+保存源文件(Esc :wq)
+运行更新命令
+
+
+apt update
+apt upgrade
