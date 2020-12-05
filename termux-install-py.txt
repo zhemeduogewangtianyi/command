@@ -1,0 +1,11 @@
+pkg install proot git python -y
+
+git clone https://github.com/sqlsec/termux-install-linux
+cd termux-install-linux
+python termux-linux-install.py
+
+
+例如：Centos
+
+cd ~/Termux-Linux/CentOS
+./start-centos.sh
