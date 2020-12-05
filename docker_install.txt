@@ -8,6 +8,9 @@ vagrant ssh
 sudo yum install -y yum-utils device-mapper-persistent-data lvm2
 # 设置repo
 sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+上面那个是国外的。。。
+sudo yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+
 # 安装docker
 sudo yum install -y docker-ce docker-ce-cli containerd.io
 # 启动docker
