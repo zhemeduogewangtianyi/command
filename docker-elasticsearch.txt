@@ -1,0 +1,45 @@
+#拉镜像
+docker pull elasticsearch:7.2.0
+
+#启动 es
+docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -d elasticsearch:7.2.0
+
+#进入 es 进程
+docker exec -it elasticsearch /bin/bash
+
+#修改配置文件
+cd /usr/share/elasticsearch/config/
+vi elasticsearch.yml
+
+#跨域问题，追加内容
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+
+#安装ik分词器
+cd /usr/share/elasticsearch/plugins/
+elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+exit
+docker restart elasticsearch 
+
+#可以在kibana界面的dev tools中验证是否安装成功
+POST test/_analyze
+{
+  "analyzer": "ik_max_word",
+  "text": "你好我是东邪Jiafly"
+}
+
+
+
+
+
+
+#docker 安装 kibana
+docker pull kibana:7.2.0
+
+#启动kibana，安装完成以后需要启动kibana容器，使用--link连接到elasticsearch容器，命令如下:
+
+docker run --name kibana --link=elasticsearch:test  -p 5601:5601 -d kibana:7.2.0
+docker start kibana
+
+
+http://localhost:5601

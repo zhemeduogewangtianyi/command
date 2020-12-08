@@ -1,5 +1,9 @@
 # 拉去centos 7 虚拟机
 vagrant init centos/7
+
+#也可以指定镜像地址
+vagrant init centos7 https://mirrors.ustc.edu.cn/centos-cloud/centos/7/vagrant/x86_64/images/CentOS-7.box
+
 # 进入虚拟机
 vagrant ssh
 
