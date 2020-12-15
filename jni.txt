@@ -1,0 +1,41 @@
+// 生成class文件
+javac GameBox.java
+
+// 生成java头文件 com.opencode.code.jni.GameBox.h
+javah -jni GameBox
+
+jni.h 在    -> Java\jdk1.8.0_212\include
+
+jni_md.h 在    ->   Java\jdk1.8.0_212\include\win32
+
+gcc -Wall -fPIC -c GameBox.c -I ./ -I $JAVA_HOME/include/linux/ -I $JAVA_HOME/include/ 
+
+//gcc -Wall -rdynamic -shared -o libhello.so  GameBox.o
+
+gcc -fPIC -shared -o libstr.so HelloJni.o 
+或者
+gcc HelloJni.c com_opencode_jni_HelloJni.h jni.h jni_md.h -fPIC -shared -o libtest.so
+
+windows dll
+
+
+
+
+
+
+
+javah -classpath ./target\classes -d jni com.opencode.jni.HelloJni
+
+setting -> tools -> External Tools -> 
+
+	Generator Header File
+	C:\Program Files\Java\jdk1.8.0_212\bin\javah
+	-jni -classpath $OutputPath$ -d ./jni $FileClass$
+	$ProjectFileDir$
+
+HelloJni
+
+
+gcc -Wall -fPIC -c HelloJni.c -I ./ -I $JAVA_HOME/include/linux/ -I $JAVA_HOME/include/ 
+
+Error running 'Generator Header File': Cannot run program "D:\source\jdk\jdk-12\bin\javah" (in directory "D:\local-project\play_code"): CreateProcess error=2, 系统找不到指定的文件。
