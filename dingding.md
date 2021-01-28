@@ -1,4 +1,4 @@
-# [钉钉群机器人开发接口](https://www.cnblogs.com/tjp40922/p/11299023.html)
+# 钉钉群机器人开发接口
 
 # 获取自定义机器人webhook
 
