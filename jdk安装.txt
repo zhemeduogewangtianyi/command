@@ -1,0 +1,21 @@
+安装默认版本
+
+	yum install java-devel
+
+vi /etc/profiles
+
+设置PATH
+
+/usr/lib/jvm/java-1.8.0-openjdk/bin:/usr/lib/jvm/java-1.8.0-openjdk/jre/bin
+
+
+
+
+JDK安装选择版本：
+	yum search java|grep jdk
+	
+	通过这句话，查看版本目录：
+	
+	yum install java-1.8.0-openjdk
+	
+	vim /etc/profile
