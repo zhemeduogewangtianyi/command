@@ -1,0 +1,320 @@
+﻿卸载过程
+停止服务： systemctl stop mariadb
+查询安装包：rpm -qa | grep mariadb
+
+卸载：
+	rpm -e mariadb-server
+	rpm -e mariadb
+	rpm -e --nodeps mariadb-libs
+
+准备环境 	-> 	虚拟机DVD已连接 启动时链接（√）
+	查看光盘挂载：df -h
+	卸载：umonut /dev/cdrom
+	挂载：mount /dev/cdrom /media
+
+使用本地yum源：
+	cd /etc/yum.repos.d/ 
+	创建一个文件，以repo结尾，如yum.repo，文件内容如下：进行配置
+	[base]
+	name=yum
+	enable=1
+	baseurl=file:///media
+	gpgcheck=0
+
+
+开始安装：
+	执行命令：
+		yum -y install mariadb mariadb-server
+	拷贝文件：
+		cp /usr/share/mysql/my-huge.cnf /etc/my.cnf
+	root账号登陆：
+		在/etc/my.cnf 中的 [mysqld] 后添加 lower_case_table_names=1，重启MYSQL服务，不区分表内的大小写
+	启动mariadb服务并且开机自动运行：
+		systemctl start mariadb
+		systemctl enable mariadb
+	查看防火墙状态：
+		systemctl status firewalld
+	停止防火墙：
+		systemctl stop firewalld
+	#设置开机不启动防火墙：
+		systemctl disable firewalld
+	开始设置Mariadb数据库：
+		执行脚本：/usr/bin/mysql_secure_installation
+		按照下面的提示操作：
+			按照下面提示进行操作即可：
+
+			NOTE:RUNNING ALL PARTS OF THIS SCRIPT IS RECOMMENDED FOR ALL MariaDB
+
+			SERVERS IN PRODUCTIONUSE! PLEASE READ EACH STEP CAREFULLY!
+
+			In order to log intoMariaDB to secure it, we'll need the current
+
+			password for the rootuser. If you've just installed MariaDB,and
+
+			you haven't set the rootpassword yet, the password will be blank,
+
+			so you should just pressenter here.
+
+			Enter current passwordfor root (enter for none): 安装后默认没有root密码，直接回车
+
+			OK, successfully usedpassword, moving on...
+
+			Setting the rootpassword ensures that nobody can log into the MariaDB
+
+			root user without theproper authorisation.
+
+			Set root password? [Y/n]Y
+
+			New password: 输入root的新密码
+
+			Re-enter new password: 新密码确认
+
+			Password updated successfully!
+
+			Reloading privilegetables..
+
+			... Success!
+
+			By default, a MariaDBinstallation has an anonymous user, allowing anyone
+
+			to log into MariaDBwithout having to have a user account created for
+
+			them. This is intended only for testing, and tomake the installation
+
+			go a bit smoother. You should remove them before moving into a
+
+			production environment.
+
+			Remove anonymous users?[Y/n] 删除匿名用户 Y
+
+			... Success!
+
+			Normally, root shouldonly be allowed to connect from 'localhost'. This
+
+			ensures that someonecannot guess at the root password from the network.
+
+			Disallow root loginremotely? [Y/n] 关闭root远程登录 Y
+
+			... Success!
+
+			By default, MariaDBcomes with a database named 'test' that anyone can
+
+			access. This is also intended only for testing, andshould be removed
+
+			before moving into aproduction environment.
+
+			Remove test database andaccess to it? [Y/n] 删除test数据库 Y
+
+			Dropping test database...
+
+			... Success!
+
+			Removing privileges on test database...
+
+			... Success!
+
+			Reloading the privilegetables will ensure that all changes made so far
+
+			will take effectimmediately.
+
+			Reload privilege tablesnow? [Y/n] 确定以上所有操作 Y
+
+			... Success!
+
+			Cleaning up...
+
+			All done! If you've completed all of the above steps,your MariaDB
+
+			installation should nowbe secure.
+
+			Thanks for usingMariaDB!
+
+
+配置MariaDB主从
+	修改vim /etc/my.cnf配置文件：
+				主节点不需要进行修改
+				从节点进行修改 server-id=2
+	
+	PS:进行重启从节点（slave）：systemctl restart mariadb
+
+	在主节点上建立账户并且授权Slave
+
+登录MariaDB数据库：mysql -uroot –proot
+
+	建立主从复制用户并授权：
+
+	语法：
+
+		GRANT REPLICATION SLAVE ON .{所有权限} TO'slave'@'%'{用户名为slave，%为任意地址} identified by 'slave';
+
+	命令：
+
+		grant replication slave on *.* to 'slave'@'%' identified by 'slave';
+
+	查询SQL（Master的状态）命令：SHOW MASTER STATUS;
+				
+	配置从节点SLAVE：（注意在从节点上执行）
+	
+	-------扩展
+	mariadb需要一个特殊的账户来进行主从的同步，不是靠root来搞的
+	mariadb有单独的一个进程来进行主从同步
+	把主节点有一个binlog的东东复制到从节点上
+	从节点记录了之后，解析成sql语句，再执行sql语句
+	主节点：insert -> 记录到binlog中 -> 单独一个用户（进程）-> 把当前位置刷到另外一个从节点
+	-> 从节点记录 -> 解析成sql -> 从执行sql -> 完成了一次主从的配置
+	
+	直接用项目链接的用户/root 会非常耗费资源
+	
+	不知道binlog的看过来。
+	MariaDB [(none)]> show master status;
+		+------------------+----------+--------------+------------------+
+		| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |
+		+------------------+----------+--------------+------------------+
+		| mysql-bin.000003 |     1016 |              |                  |
+		+------------------+----------+--------------+------------------+
+		
+		主从同步主要是看binlog的Position的位置
+
+登录从服务器：mysql -uroot –proot进行配置：
+
+	语法：
+
+	CHANGE MASTER TO
+
+	MASTER_HOST='主节点的IP地址', MASTER_USER='主节点授权的用户', MASTER_PASSWORD='主节点授权的用户的密码',MASTER_LOG_FILE='mysql-bin.000007',MASTER_LOG_POS=2197;
+
+	命令：
+
+	CHANGE MASTER TO MASTER_HOST='192.168.112.129',MASTER_USER='slave',MASTER_PASSWORD='slave',MASTER_LOG_FILE='mysql-bin.000003',MASTER_LOG_POS=1016;
+	PS:注意语法逗号前后不要用空格。
+	
+	ERROR 1198 (HY000): This operation cannot be performed with a running slave; run STOP SLAVE first
+	
+	进入slave服务器mysql执行命令：stop slave;
+	在执行上面CHANGE MASTER命令
+	成功后再执行命令：START slave;
+
+	查看主从状态验证：
+
+	命令：show slave status\G;			
+				
+	
+	授权远程用户root登录：（主从都需要进行执行）
+
+	GRANT ALL PRIVILEGES ON . TO 'root'@'%' IDENTIFIED BY 'root' WITHGRANT OPTION;
+
+	FLUSH PRIVILEGES;
+				
+	问题：
+		binlog的模式怎么指定？
+		主从节点如何切换？
+			多数据源。 
+		什么时候走从库，什么时候走主库？
+	
+	踩到的坑。。。
+		从数据库，vi /etc/my.cnf	修改完了之后一定要记得重启下从数据库 systemctl restart mariadb。不然
+		定然会 Slave_IO_Running: No
+		
+		如果安装数据库的时候关闭了远程登陆。。。
+			一定要打开。。不然就玩玩本地吧。
+				在主节点上：HeidiSql 或者 navicat都可以去连接下试试。。
+				grant all privileges on *.* to 'root'@'%' identified by 'root' with grant option;
+				flush privileges;
+				
+		都能连上之后：
+				test1:
+				主节点新建一个数据库 student
+				然后slave从库刷新下，就发现你建的数据库出现了。
+				
+				test2:
+				在主节点新建的数据库中建一个表 user
+				slave从数据库刷新下，看看表出现了 user 了么
+				
+				test3:
+				在主节点student -> user -> 加一条数据
+				slave从数据库下刷新下
+				
+		mysql主从同步大忌：
+			不允许修改从节点，可以通过工具或者命令 在从数据库 删除数据。。。但是。。。mysql主从关系就让你
+			彻底玩死了。。。服务就不能用了
+			因为主节点的数据要和从节点数据一直，不是双主模式。。。哪个节点变了就同步谁
+			从节点就是负责读的，和主节点保持一致的
+			杠精问题来了：
+				万一从节点就是被改了，咋弄？
+				只能去修复数据。。。你不嫌麻烦你就改啊
+				解决方案一：
+					Slave SQL Running：No
+					这就是你个杠精在从节点插入了数据
+					当然也有可能冤枉了杠精
+					因为slave机器重启后，事务回滚导致的
+					事务回滚导致的：
+						从服务器：
+							stop slave;
+							set GLOBAL SQL_SLAVE_SKIP_COUNTER=1;
+							start slave;
+				解决方案二：
+					杠精场景大还原：
+						1：来到刚才已经搞好的从服务器，删掉student数据库的user表里面的数据。
+						2：从数据库节点加2条数据。。。主节点再加3条数据，从节点只留一条数据，
+							主节点增加一条和从节点一摸一样的数据，额外再多加一条数据。
+							删除主节点的user表。
+							看一眼数据库还同步么。。。
+						3：来到从数据库，登陆mysql ，看一下slave还好么。。。
+						Slave IO Running：Yes
+						Slave SQL Running：No
+					修复杠精弄坏的数据：
+						1：从服务器停掉：
+							stop slave;
+						2：主服务器 进入master看状态：
+							show master status; 或者 show master status\G;
+							记住file和position
+						3：去从服务器手工执行同步操作：
+							MASTER_LOG_FILE，MASTER_LOG_POS 和主服务器保持一致
+							CHANGE MASTER TO MASTER_HOST='192.168.112.129',MASTER_USER='slave',MASTER_PASSWORD='slave',MASTER_LOG_FILE='mysql-bin.000003',MASTER_LOG_POS=1016;
+						4：启动从服务器：
+							start slave;
+						5:查看从服务状态i：
+							show slave status\G;
+								看到这样就对了 ↓
+								Slave IO Running：Yes
+								Slave SQL Running：Yes
+						6：再去看数据库。。
+							原来没同步的数据没办法了，走人工数据订正吧。。。
+							主数据库再去建表，插数据，试试是否能够正常同步数据；
+				
+				主要就是找到binlog和position,对应上就哦了；
+				
+			主从同步原理：
+				永远都是从节点的数据和主节点上的数据保持一致；
+				从节点多出来一张rule表，这时候主服务器与从服务器还没有建立主从同步关系，所以主节点是没有的。
+				假如主节点建立一个aaa表，从节点一定会有aaa表
+				主从的binlog，position要互相一致
+
+
+		关于中文乱码问题：
+
+			vi /etc/my.cnf
+
+	                    在[client]节点下添加
+
+		                 default-character-set=utf8 
+	                    在[mysqld]节点下添加
+
+		                 character-set-server=utf8
+		                 collation-server=utf8_general_ci
+
+		systemctl restart mariadb
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
