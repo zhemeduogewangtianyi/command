@@ -1,0 +1,30 @@
+https://www.cnblogs.com/jianan/p/9564259.html
+
+安装Node.js、npm、cnpm
+
+https://nodejs.org/en/
+
+node -v
+npm -v
+
+
+ npm install -g cnpm --registry=https://registry.npm.taobao.org
+
+
+创建我们的第一个react程序
+
+例如我们要在D:\workSpace下创建first-react-demo这个工程，并跑通，我们依次执行如下步骤
+
+
+window下进入D:\workSpace这个文件夹，在地址栏键入cmd enter，
+
+cnpm install -g create-react-app   全局安装创建react-app的module（这一步不一定要在workspace目录下）
+
+
+
+
+create-react-app first-react-demo  在workspct这个文件夹下创建fist-react-demo这个项目
+但是，有可能会报错 Unexpected end of JSON input while parsing near '....0","dependencies":{"' ，假如报错，需要执行npm cache clean --force
+
+
+在创建成功的基础上，我们在打开first-react-demo这个文件夹，地址栏键入cmd并enter，在打开的cmd窗口中，键入npm start
