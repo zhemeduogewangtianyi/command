@@ -57,6 +57,7 @@ rm -rf /usr/local/mysqlxxxxxx /usr/var/mysqlxxxxxx
 ```
 # 可以使用该网址进行下载,官网在国内下载较慢
 wget http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-5.7.24-linux-glibc2.12-x86_64.tar.gz
+wget http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-5.7.34-linux-glibc2.12-x86_64.tar.gz
 复制代码
 ```
 
