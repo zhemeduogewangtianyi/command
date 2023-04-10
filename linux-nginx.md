@@ -37,6 +37,9 @@ cd /usr/local/nginx-1.18.0
 ./configure --prefix=/root/server
 这里我是安装在/home/www/server/nginx
 
+./configure --prefix=/root/server --with-http_ssl_module
+安装 open ssl
+
 3、编译并安装
 
 make && make install
@@ -118,4 +121,132 @@ systemctl restart nginx
 
 //查看状态
 systemctl status nginx
+
+
+
+
+
+######
+
+解决方法：
+这里介绍修改配置文件nginx.conf两种方法：
+1）在server段里插入如下正则：
+listen    80;
+server_name www.yuyangblog.net;
+if ($host != 'www.yuyangblog.net'){
+  return 403;
+}
+
+
+
+if ($host != 'ireading.uk'){
+  return 403;
+}
+
+
+2)添加一个server
+新加的server（注意是新增，并不是在原有的server基础上修改）
+server {
+ listen 80 default;
+ server_name _;
+ return 403;
+}
+原来server里面插入：
+listen    80;
+
+server_name www.yuyangblog.net;
+
+proxy_max_temp_file_size 0;
+
+```
+
+#user  nobody;
+worker_processes  1;
+
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#pid        logs/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+    #access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    gzip  on;
+
+    server {
+        listen       80;
+        server_name  123123 123123;
+        proxy_max_temp_file_size 0;
+
+        set $flag 0;	
+        if ($host = '1.com'){
+            set $flag 1;
+        }
+        if ($host = 'www.1.com') {
+            set $flag 1;
+        }
+        if ($host = '2.uk'){
+            set $flag 2;
+        }
+        if ($host = 'www.2.uk') {
+           set $flag 2;
+        }
+        if ($host = '3.com'){
+            set $flag 3;
+        }
+        if ($host = '3.com') {
+            set $flag 3;
+        }
+        if ($flag = 0) {
+            return 403;
+        }
+
+        location / {
+						if ($flag = 1) {
+							proxy_pass http://127.0.0.1:8087;
+							break;
+	   				 }
+	   		 		if ($flag = 2) {
+                proxy_pass http://127.0.0.1:8088;
+                break;
+            }  
+            if ($flag = 3) {
+                proxy_pass http://127.0.0.1:8089;
+                break;
+            }
+
+            root   html;
+            index  index.html index.htm;
+        }
+        
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+       
+    }
+
+}
+```
 
