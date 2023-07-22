@@ -1,0 +1,46 @@
+
+    private String getOpenCarRecordExampleSql(OpenExample example){
+        SqlSessionFactory bean = context.getBean(SqlSessionFactory.class);
+        SqlSession session = bean.openSession();
+        try{
+            MappedStatement ms = session.getConfiguration().getMappedStatement(OpenMapper.class.getName() + ".selectByExample");
+            BoundSql boundSql = ms.getBoundSql(example); // parameter for the SQL statement
+            if(boundSql != null){
+                // get parameters
+                List<ParameterMapping> boundParams = boundSql.getParameterMappings();
+                String paramString = "";
+                for(ParameterMapping param : boundParams) {
+                    paramString += boundSql.getAdditionalParameter(param.getProperty()) + ";";
+                }
+                String finalSql = boundSql.getSql();
+                finalSql = finalSql.replaceAll("\\s", " ");
+                finalSql = finalSql.replaceAll("[ ]{2,}", " ");
+
+                Map<String , Object> paramMapping = new HashMap();
+                List<OpenExample.Criteria> oredCriteria = example.getOredCriteria();
+                for(OpenExample.Criteria c : oredCriteria){
+                    List<OpenExample.Criterion> criteria = c.getCriteria();
+                    for (OpenExample.Criterion criterion : criteria){
+
+                        paramMapping.put("" , criterion.getValue());
+                    }
+                }
+                for (ParameterMapping pm : boundParams) {
+                    if (paramMapping.containsKey(pm.getProperty())) {
+                        finalSql = finalSql.replaceFirst("\\?", paramMapping.get(pm.getProperty()).toString());
+                    }
+                }
+                System.out.println("params:" + paramString);
+                return boundSql.getSql();
+            }else{
+                return null;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            if(session != null){
+                session.close();
+            }
+        }
+        return null;
+    }
