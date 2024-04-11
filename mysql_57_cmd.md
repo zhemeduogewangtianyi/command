@@ -76,7 +76,7 @@ mysql> set global validate_password_length=1;
 这时候我们就可以自己设置想要的密码了
 
 ```javascript
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'Aqc_paas123';
+ALTER USER 'root'@'localhost' IDENTIFIED BY '123456';
 ```
 
 复制
