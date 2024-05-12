@@ -40,6 +40,8 @@ cd /usr/local/nginx-1.18.0
 ./configure --prefix=/root/server --with-http_ssl_module
 安装 open ssl
 
+./configure --prefix=/root/server --with-compat --add-module=/root/ngx_healthcheck_module
+
 3、编译并安装
 
 make && make install
