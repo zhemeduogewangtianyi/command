@@ -128,6 +128,53 @@ systemctl status nginx
 
 
 
+为了在 Nginx 1.18.0 中实现健康检查和多 IP 集群功能，您可以按照以下步骤操作：
+
+下载并解压 Nginx 1.18.0 源代码：
+wget https://nginx.org/download/nginx-1.18.0.tar.gz
+tar -zxvf nginx-1.18.0.tar.gz
+
+下载并解压 ngx_http_healthcheck_module 源代码：
+git clone https://github.com/zhouchangxun/ngx_healthcheck_module.git
+进入 Nginx 源代码目录，并将 ngx_http_healthcheck_module 添加为 Nginx 的模块：
+
+cd nginx-1.18.0
+./configure --with-stream --add-module=../ngx_healthcheck_module
+make
+sudo make install
+配置 Nginx：
+在您的 Nginx 配置文件中添加健康检查和多 IP 集群的配置。以下是一个示例配置：
+
+http {
+    upstream backend {
+        server 192.168.1.1:8080;
+        server 192.168.1.2:8080;
+        server 192.168.1.3:8080;
+        check interval=3000 rise=2 fall=5 timeout=1000;
+    }
+
+    server {
+        listen 80;
+        server_name example.com;
+
+        location / {
+            proxy_pass http://backend;
+        }
+    }
+}
+在这个配置中，我们定义了一个名为 backend 的 upstream，其中包含了多个服务器的 IP 和端口，并配置了健康检查选项。然后，在 server 块中，我们将请求代理到 backend 上。
+
+测试并启动 Nginx：
+确保您的配置文件没有语法错误，并通过以下命令测试：
+
+nginx -t
+如果没有错误，则启动 Nginx：
+
+nginx
+现在，您的 Nginx 已经配置了健康检查和多 IP 集群功能。您可以根据需要对配置进行调整和优化。
+
+
+
 ######
 
 解决方法：
