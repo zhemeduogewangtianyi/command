@@ -21,9 +21,11 @@ c函数将这一系列的参数合成一个链接，赋给图片地址，通过�
 百度每个搜索结果都有一个onmousedown事件，谁知到这个具体它在服务器端做什么处理呢!?肯定对排名有影响的，这就不用说了
 
 
+https://www.baidu.com/link?url=RSiDgz-tCTaJo4_oYLItxQApbMcurqUuhQRq7fwvB6mCoX3xDR3SJvqxA6wKE_LQ&wd=&eqid=ea1cc1a9001781ca0000000666b5e243
+
 注：
 
-q 查询词
+wd 查询词
 
 fm 数据返回的格式
 
